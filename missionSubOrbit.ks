@@ -1,14 +1,9 @@
 // Launch
 RUNONCEPATH("0:/library.ks").
+initMission("Launch to sub-orbit").
 
-CLEARSCREEN.
-PRINT "Launch to sub-orbit: " + TIME:CALENDAR + ", " + TIME:CLOCK.
-SET radarAltOffset TO ALT:RADAR - 6.
-// SET radarAltOffset TO 7.06443023681641.
-SET startMissionTime TO TIME:SECONDS.
-LOCK elapsedMissionTime TO TIME:SECONDS - startMissionTime.
+// Part 1
+doLaunchToTargetHeight(75_000).
 
-launchToTargetHeight(80_000, 3).
-
-PRINT "T+" + ROUND(elapsedMissionTime) + " Beginning suicide burn".
-suicideBurn(radarAltOffset).
+//Part 2
+doSuicideBurn().
