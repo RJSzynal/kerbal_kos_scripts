@@ -5,7 +5,7 @@ FUNCTION initMission {
     initGlobals().
     CLEARSCREEN.
     PRINT missionName + ": " + TIME:CALENDAR + ", " + TIME:CLOCK.
-    SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.
+    SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.01.
 }
 
 FUNCTION initGlobals {
@@ -64,6 +64,13 @@ FUNCTION initAutoStaging {
         } ELSE {
             RETURN false.
         }
+    }
+}
+
+FUNCTION initParachutes {
+    WHEN SHIP:ALTITUDE > SHIP:BODY:ATM:HEIGHT THEN {
+        STAGE.
+        RETURN false.
     }
 }
 
@@ -132,6 +139,8 @@ FUNCTION doLaunchToTargetHeight {
     LOCAL missionStartDelay IS 1.
     SET throttleSet TO 1.
     SET KUNIVERSE:TIMEWARP:WARP TO 0.
+    RCS ON.
+    SAS OFF.
     LOCK THROTTLE TO throttleSet.
     LOCK STEERING TO HEADING(90,90).
 
@@ -165,6 +174,9 @@ FUNCTION doLaunchToTargetHeight {
     }
     printMissionMessage("Exited atmosphere").
     LOCK THROTTLE TO 0.
+    SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.
+    RCS OFF.
+    SAS ON.
     UNLOCK STEERING.
     UNLOCK THROTTLE.
 }
