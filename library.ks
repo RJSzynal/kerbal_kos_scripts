@@ -68,9 +68,11 @@ FUNCTION initAutoStaging {
 }
 
 FUNCTION initParachutes {
-    WHEN SHIP:ALTITUDE > SHIP:BODY:ATM:HEIGHT THEN {
-        STAGE.
-        RETURN false.
+    IF SHIP:BODY:ATM:EXISTS {
+        WHEN SHIP:ALTITUDE > SHIP:BODY:ATM:HEIGHT THEN {
+            STAGE.
+            RETURN false.
+        }
     }
 }
 
@@ -81,6 +83,9 @@ FUNCTION doSuicideBurn {
     SET KUNIVERSE:TIMEWARP:WARP TO 0.
     SAS OFF.
     RCS ON.
+    IF SHIP:BODY:ATM:EXISTS {
+        BRAKES ON.
+    }
     LOCK STEERING TO SRFRETROGRADE.
     WHEN suicideTimeRemaining < 5 THEN { GEAR ON. }
 
@@ -295,16 +300,17 @@ FUNCTION doNodeDeltaV {
 
     SET KUNIVERSE:TIMEWARP:WARP TO 0.
     SAS OFF.
-    LOCK steering TO thisNode:DELTAV:DIRECTION.
+    LOCK THROTTLE TO 0.
+    LOCK STEERING TO thisNode:DELTAV:DIRECTION.
 
     doAwaitNode(thisNode, 5).
     WAIT 5.
 
     LOCAL throttlePosition IS 0.
     LOCK THROTTLE TO throttlePosition.
-    LOCAL oldDeltaV IS thisNode:DELTAV:MAG + 1.
+    LOCAL oldDeltaV IS thisNode:DELTAV:MAG.
     LOCAL availableDeltaV IS SHIP:AVAILABLETHRUST * THROTTLE / SHIP:MASS.
-    UNTIL thisNode:DELTAV:MAG < 1 or thisNode:DELTAV:MAG > oldDeltaV {
+    UNTIL thisNode:DELTAV:MAG < 1 or thisNode:DELTAV:MAG > oldDeltaV + 1 {
         SET availableDeltaV TO SHIP:AVAILABLETHRUST * THROTTLE / SHIP:MASS.
         LOCAL throttleTarget IS thisNode:DELTAV:MAG * SHIP:MASS / SHIP:AVAILABLETHRUST.
         IF thisNode:DELTAV:MAG < 2*availableDeltaV and throttleTarget > 0.1 {
@@ -320,6 +326,7 @@ FUNCTION doNodeDeltaV {
         WAIT 1/availableDeltaV.
     }
     LOCK THROTTLE TO 0.
+    REMOVE circnode.
 
     UNLOCK STEERING.
     UNLOCK THROTTLE.
